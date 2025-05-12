@@ -6,11 +6,11 @@ import {
   BucketEncryption,
   IBucket,
 } from "aws-cdk-lib/aws-s3";
-import {
-  CachePolicy,
-  Distribution,
-  ViewerProtocolPolicy,
-} from "aws-cdk-lib/aws-cloudfront";
+// import {
+//   CachePolicy,
+//   Distribution,
+//   ViewerProtocolPolicy,
+// } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { NodejsBuild } from "deploy-time-build";
 import { Auth } from "./auth";
@@ -37,7 +37,7 @@ export interface FrontendProps {
 }
 
 export class Frontend extends Construct {
-  readonly cloudFrontWebDistribution: Distribution;
+  // readonly cloudFrontWebDistribution: Distribution;
   readonly assetBucket: Bucket;
   private readonly certificate?: acm.ICertificate;
   private readonly hostedZone?: route53.IHostedZone;
@@ -73,81 +73,81 @@ export class Frontend extends Construct {
       });
     }
 
-    const distribution = new Distribution(this, "Distribution", {
-      defaultRootObject: "index.html",
-      defaultBehavior: {
-        origin: S3BucketOrigin.withOriginAccessControl(assetBucket),
-        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-      },
-      ...(this.alternateDomainName && this.certificate ? {
-        domainNames: [this.alternateDomainName],
-        certificate: this.certificate,
-      } : {}),
-      errorResponses: [
-        {
-          httpStatus: 404,
-          ttl: Duration.seconds(0),
-          responseHttpStatus: 200,
-          responsePagePath: "/",
-        },
-        {
-          httpStatus: 403,
-          ttl: Duration.seconds(0),
-          responseHttpStatus: 200,
-          responsePagePath: "/",
-        },
-      ],
-      ...(!this.shouldSkipAccessLogging() && {
-        logBucket: props.accessLogBucket,
-        logFilePrefix: "Frontend/",
-      }),
-      webAclId: props.webAclId,
-      enableIpv6: props.enableIpV6,
-    });
+    // const distribution = new Distribution(this, "Distribution", {
+    //   defaultRootObject: "index.html",
+    //   defaultBehavior: {
+    //     origin: S3BucketOrigin.withOriginAccessControl(assetBucket),
+    //     viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+    //     cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+    //   },
+    //   ...(this.alternateDomainName && this.certificate ? {
+    //     domainNames: [this.alternateDomainName],
+    //     certificate: this.certificate,
+    //   } : {}),
+    //   errorResponses: [
+    //     {
+    //       httpStatus: 404,
+    //       ttl: Duration.seconds(0),
+    //       responseHttpStatus: 200,
+    //       responsePagePath: "/",
+    //     },
+    //     {
+    //       httpStatus: 403,
+    //       ttl: Duration.seconds(0),
+    //       responseHttpStatus: 200,
+    //       responsePagePath: "/",
+    //     },
+    //   ],
+    //   ...(!this.shouldSkipAccessLogging() && {
+    //     logBucket: props.accessLogBucket,
+    //     logFilePrefix: "Frontend/",
+    //   }),
+    //   webAclId: props.webAclId,
+    //   enableIpv6: props.enableIpV6,
+    // });
 
-    if (this.alternateDomainName && this.hostedZone) {
-      new route53.ARecord(this, 'AliasRecord', {
-        zone: this.hostedZone,
-        target: route53.RecordTarget.fromAlias(
-          new targets.CloudFrontTarget(distribution)
-        ),
-        recordName: this.alternateDomainName,
-      });
+    // if (this.alternateDomainName && this.hostedZone) {
+    //   new route53.ARecord(this, 'AliasRecord', {
+    //     zone: this.hostedZone,
+    //     target: route53.RecordTarget.fromAlias(
+    //       new targets.CloudFrontTarget(distribution)
+    //     ),
+    //     recordName: this.alternateDomainName,
+    //   });
 
-      if (props.enableIpV6) {
-        new route53.AaaaRecord(this, 'AaaaRecord', {
-          zone: this.hostedZone,
-          target: route53.RecordTarget.fromAlias(
-            new targets.CloudFrontTarget(distribution)
-          ),
-          recordName: this.alternateDomainName,
-        });
-      }
-    }
+    //   if (props.enableIpV6) {
+    //     new route53.AaaaRecord(this, 'AaaaRecord', {
+    //       zone: this.hostedZone,
+    //       target: route53.RecordTarget.fromAlias(
+    //         new targets.CloudFrontTarget(distribution)
+    //       ),
+    //       recordName: this.alternateDomainName,
+    //     });
+    //   }
+    // }
 
-    NagSuppressions.addResourceSuppressions(distribution, [
-      {
-        id: "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
-        reason: "this asset is being used all over the world",
-      },
-    ]);
+    // NagSuppressions.addResourceSuppressions(distribution, [
+    //   {
+    //     id: "AwsPrototyping-CloudFrontDistributionGeoRestrictions",
+    //     reason: "this asset is being used all over the world",
+    //   },
+    // ]);
 
     this.assetBucket = assetBucket;
-    this.cloudFrontWebDistribution = distribution;
+    //this.cloudFrontWebDistribution = distribution;
 
-    if (this.alternateDomainName) {
-      new CfnOutput(this, 'AlternateDomain', {
-        value: this.alternateDomainName,
-        description: 'Alternate domain name for the CloudFront distribution',
-      });
-    }
-    if (this.certificate) {
-      new CfnOutput(this, 'CertificateArn', {
-        value: this.certificate.certificateArn,
-        description: 'ARN of the ACM certificate',
-      });
-    }
+    // if (this.alternateDomainName) {
+    //   new CfnOutput(this, 'AlternateDomain', {
+    //     value: this.alternateDomainName,
+    //     description: 'Alternate domain name for the CloudFront distribution',
+    //   });
+    // }
+    // if (this.certificate) {
+    //   new CfnOutput(this, 'CertificateArn', {
+    //     value: this.certificate.certificateArn,
+    //     description: 'ARN of the ACM certificate',
+    //   });
+    // }
   }
 
   /**
@@ -161,10 +161,11 @@ export class Frontend extends Construct {
   }
 
   getOrigin(): string {
-    if (this.alternateDomainName) {
-      return `https://${this.alternateDomainName}`;
-    }
-    return `https://${this.cloudFrontWebDistribution.distributionDomainName}`;
+    // if (this.alternateDomainName) {
+    //   return `https://${this.alternateDomainName}`;
+    // }
+    // return `https://${this.cloudFrontWebDistribution.distributionDomainName}`;
+    return this.assetBucket.bucketWebsiteUrl;
   }
 
   buildViteApp({
@@ -229,7 +230,7 @@ export class Frontend extends Construct {
       buildCommands: ["npm run build"],
       buildEnvironment: buildEnvProps,
       destinationBucket: this.assetBucket,
-      distribution: this.cloudFrontWebDistribution,
+      //distribution: this.cloudFrontWebDistribution,
       outputSourceDirectory: "dist",
     });
 

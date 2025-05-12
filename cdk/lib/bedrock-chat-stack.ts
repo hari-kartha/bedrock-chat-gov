@@ -136,6 +136,7 @@ export class BedrockChatStack extends cdk.Stack {
         bedrockRegion: props.bedrockRegion,
       }
     );
+    
 
     const frontend = new Frontend(this, "Frontend", {
       accessLogBucket,
@@ -260,18 +261,18 @@ export class BedrockChatStack extends cdk.Stack {
       idp,
     });
 
-    const cloudFrontWebDistribution = frontend.cloudFrontWebDistribution.node
-      .defaultChild as Distribution;
-    props.documentBucket.addCorsRule({
-      allowedMethods: [HttpMethods.PUT],
-      allowedOrigins: [
-        `https://${cloudFrontWebDistribution.distributionDomainName}`, // frontend.getOrigin() is cyclic reference
-        "http://localhost:5173",
-        "*",
-      ],
-      allowedHeaders: ["*"],
-      maxAge: 3000,
-    });
+    // const cloudFrontWebDistribution = frontend.cloudFrontWebDistribution.node
+    //   .defaultChild as Distribution;
+    // props.documentBucket.addCorsRule({
+    //   allowedMethods: [HttpMethods.PUT],
+    //   allowedOrigins: [
+    //     `https://${cloudFrontWebDistribution.distributionDomainName}`, // frontend.getOrigin() is cyclic reference
+    //     "http://localhost:5173",
+    //     "*",
+    //   ],
+    //   allowedHeaders: ["*"],
+    //   maxAge: 3000,
+    // });
 
     const embedding = new Embedding(this, "Embedding", {
       bedrockRegion: props.bedrockRegion,
